@@ -1,0 +1,7 @@
+wavio
+scipy
+transformers
+pytube
+sounddevice
+pyaudio
+git+https://github.com/openai/whisper.git

@@ -1,0 +1,144 @@
+{% extends "layout.html" %}
+{% block content %}
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>About Page</title>
+</head>
+<body>
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-8">
+            <div class="content-section">
+                <div class="media" align="center">
+                    <div class="media-body">
+                        <div class="article-metadata" align="center">
+                            <h2>About Page</h2>
+                            <div id="message-container"></div>
+                            <div align="center">
+                                <form id="run-script-form" method="post" action="/start_record">
+                                    <button class="btn btn-secondary btn-sm mt-3 mb-3" type="submit">Record</button>
+                                </form>
+                                <form id="additional-action-form" method="post" action="/addoption">
+                                    <button class="btn btn-primary btn-sm mt-3" type="submit">Add your options</button>
+                                </form>
+                                <!-- Display the transcription result here -->
+                                <h3>Transcription:</h3>
+                                <pre id="transcription" style="max-height: 200px; overflow-y: scroll;">{{ transcription_message }}</pre>
+                                
+                                <form id="sentiment-analysis-form" action="/sentiment_analysis" method="POST">
+                                    <button class="btn btn-primary btn-sm mt-3" type="submit">Analyze Sentiment</button>
+                                </form>
+                                <form id="similarity-analysis-form" action="/calculate_similarity" method="POST">
+                                    <button class="btn btn-primary btn-sm mt-3" type="submit">Analyze Similarity</button>
+                                </form>
+                                
+                                <!-- Display the sentiment analysis results here -->
+                                <h3>Sentiment Analysis:</h3>
+                                <div id="sentiment-analysis-results" style="max-height: 200px; overflow-y: scroll;"></div>
+                                
+                                <!-- Display the similarity analysis results here -->
+                                <h3>Similarity Analysis:</h3>
+                                <div id="similarity-analysis-results" style="max-height: 200px; overflow-y: scroll;"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Function to perform sentiment analysis
+    function performSentimentAnalysis() {
+        fetch('/sentiment_analysis', {
+            method: 'POST',
+            body: JSON.stringify({ transcription_message: document.getElementById('transcription').textContent }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const sentimentResults = data.sentence_results;
+            const sentimentResultsContainer = document.getElementById('sentiment-analysis-results');
+
+            // Clear previous results
+            sentimentResultsContainer.innerHTML = '';
+
+            // Display the new sentiment analysis results
+            sentimentResults.forEach(result => {
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = `<p><strong>Sentence:</strong> ${result.sentence}</p>
+                                       <p><strong>Sentiment:</strong> ${result.sentiment}</p>
+                                       <p><strong>Confidence:</strong> ${result.confidence}</p>`;
+
+                sentimentResultsContainer.appendChild(resultDiv);
+            });
+        })
+        .catch(error => console.error('Error performing sentiment analysis:', error));
+    }
+
+    // Function to perform similarity analysis
+    function performSimilarityAnalysis() {
+        fetch('/calculate_similarity', {
+            method: 'POST',
+            body: JSON.stringify({ transcription_message: document.getElementById('transcription').textContent }),
+            headers: {
+                'Content-Type': 'application/json'
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            const textContent = data.text_content;
+            const mostSimilarOption = data.most_similar_option;
+            const maxSimilarityScore = data.max_similarity_score;
+            const similarOptions = data.similar_options;
+
+            const similarityResultsContainer = document.getElementById('similarity-analysis-results');
+
+            // Clear previous results
+            similarityResultsContainer.innerHTML = '';
+
+            // Display the most similar option and its score
+            const mostSimilarOptionDiv = document.createElement('div');
+            mostSimilarOptionDiv.innerHTML = `<p><strong>Most Similar Option:</strong> ${mostSimilarOption}</p>
+                                             <p><strong>Similarity Score:</strong> ${maxSimilarityScore}</p>`;
+
+            similarityResultsContainer.appendChild(mostSimilarOptionDiv);
+
+            // Display the similar options and their scores
+            similarOptions.forEach(option => {
+                const resultDiv = document.createElement('div');
+                resultDiv.innerHTML = `<p><strong>Option:</strong> ${option[0]}</p>
+                                     <p><strong>Similarity Score:</strong> ${option[1]}</p>`;
+
+                similarityResultsContainer.appendChild(resultDiv);
+            });
+
+            // Display the content of the analyzed text
+            const contentDiv = document.createElement('div');
+            contentDiv.innerHTML = `<p><strong>Analyzed Text:</strong></p>
+                                   <p>${textContent}</p>`;
+
+            similarityResultsContainer.appendChild(contentDiv);
+        })
+        .catch(error => console.error('Error performing similarity analysis:', error));
+    }
+
+    // Add an event listener to the sentiment analysis form
+    document.getElementById('sentiment-analysis-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        performSentimentAnalysis();
+    });
+
+    // Add an event listener to the similarity analysis form
+    document.getElementById('similarity-analysis-form').addEventListener('submit', function (event) {
+        event.preventDefault();
+        performSimilarityAnalysis();
+    });
+</script>
+</body>
+{% endblock content %}

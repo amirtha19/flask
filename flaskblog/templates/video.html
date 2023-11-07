@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>360-Degree Video Player</title>
+    <script src="https://aframe.io/releases/1.2.0/aframe.min.js"></script>
+</head>
+<body>
+    <a-scene>
+        <a-videosphere id="video" src="{{ video_url }}"></a-videosphere>
+    </a-scene>
+    <button id="playPauseButton">Play</button>
+    <script>
+        var videoElement = document.querySelector('a-videosphere');
+        var playPauseButton = document.getElementById('playPauseButton');
+
+        playPauseButton.addEventListener('click', function () {
+            if (videoElement.paused) {
+                videoElement.play();
+                playPauseButton.innerText = 'Pause';
+            } else {
+                videoElement.pause();
+                playPauseButton.innerText = 'Play';
+            }
+        });
+    </script>
+</body>
+</html>

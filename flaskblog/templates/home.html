@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+{% block content %}
+<article class="media content-section">
+    
+    <div class="media-body" align="center">
+        <div class="article-metadata" align="center">
+
+            {% if current_user.is_authenticated %}
+
+            <div align="center">
+                <a class="btn btn-secondary btn-sm mt-3 mb-3" href="{{ url_for('posts.new_post') }}">Create Library</a>
+                <br>
+                <a class="btn btn-secondary btn-sm mt-3 mb-3" href="{{ url_for('posts.existing_experience') }}">Existing Libraries</a>
+
+            </div>
+            {% endif %}
+        </div>
+        
+    </div>
+</article>
+
+{% endblock content %}
